@@ -17,7 +17,7 @@ Sample files are in the `boards` & `rules` folders.
 * **`-s`**: Don't display any output
 #### Other options:
 * **`-n integer`**: Number of times to run simulations (1 by default) (if 0 is passed, then the rules file isn't required)
-* **`-d double`**: Delay between displaying each simulation step (0 by default)
+* **`-d double`**: Delay between displaying each simulation step (0 by default) *(you probably want to use this with `-v` if you plan on actually viewing the simulation as it happens)*
 * **`-g w:h:s`**: Generate a random board of size `w*h` with seed `s`
 #### Help options:
 * **`-h b`**: Show info on board files

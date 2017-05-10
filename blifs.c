@@ -390,13 +390,13 @@ void board_print(Board b) {
   for (int i = 0; i < b->h; i++) {
     for (int j = 0; j < b->w; j++) {
       if ((b->cells)[j][i] == 1)
-        printf("%c", FILL_CHAR);
+        putchar(FILL_CHAR);
       else if ((b->cells)[j][i] == 0)
-        printf("%c", EMPTY_CHAR);
+        putchar(EMPTY_CHAR);
       else
-        printf("%d", (b->cells)[j][i]);
+        putchar('0' + (b->cells)[j][i]);
     }
-    printf("\n");
+    putchar('\n');
   }
   fflush(stdout);
 }
