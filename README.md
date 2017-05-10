@@ -4,13 +4,13 @@ Simulate and generate 2D cellular automata in a console by using formatted files
 Sample files are in the `boards` & `rules` folders.
 
 ## Compiling
-Just run `./build.sh` on a Linux system, or in an Ubuntu Subsytem for Windows 10.
+Run `./build.sh` on a Linux system, or in an Ubuntu Subsystem for Windows 10 (developer mode should be enabled first).
 
 ## Command line options
 
 ### Required:
-* **`-b board-file`**: Load a board file
-* **`-r rules-file`**: Load a rules file (required unless `-i 0` is passed)
+* **`-b board-file`**: Load a board file (required, unless `-g` is passed which ignores it)
+* **`-r rules-file`**: Load a rules file (required, unless `-i 0` is passed)
 * **`-o file`**:       Output final result as a board file (required when `-g` is passed, optional otherwise)
 
 ### Optional:
@@ -20,12 +20,23 @@ Just run `./build.sh` on a Linux system, or in an Ubuntu Subsytem for Windows 10
 * **`-s`**: Don't display any output
 #### Other options:
 * **`-n integer`**: Number of times to run simulations (1 by default) (if 0 is passed, then the rules file isn't required)
-* **`-d double`**: Delay between displaying each simulation step (0 by default) *(you probably want to use this with `-v` if you plan on actually viewing the simulation as it happens)*
+* **`-d double`**: Delay in seconds between displaying each simulation step (0 by default) *(you probably want to use this with `-v` if you plan on actually viewing the simulation as it happens)*
 * **`-g w:h:s`**: Generate a random board of size `w*h` with seed `s`
 #### Help options:
 * **`-h b`**: Show info on board files
 * **`-h r`**: Show info on rules files
 * **`-h`**:Show the help options
+
+## Sample Usage
+Load the `boards/gol_glider` board, simulate it with the `rules/life` rules for 100 times, with a 1=second delay between each iteration, and output the resulting board in the 100th iteration to `board.out`:
+```
+./blifs -b boards/gol_glider -r rules/life -n 100 -v -d 1 -o board.out
+```
+
+Generate a random 20-wide 40-high board with the seed `12345`, and output the board to `random.out`:
+```
+./blifs -g 20:40:12345 -o random.out
+```
 
 ## Board file format
 
