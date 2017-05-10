@@ -3,6 +3,9 @@ Simulate and generate 2D cellular automata in a console by using formatted files
 
 Sample files are in the `boards` & `rules` folders.
 
+## Compiling
+Just run `./build.sh` on a Linux system, or in an Ubuntu Subsytem for Windows 10.
+
 ## Command line options
 
 ### Required:
