@@ -1,5 +1,5 @@
 # blifs
-Simulate and generate 2D cellular automata in a console by using formatted files. (Will probably have an `ncurses` version sometime.)
+Simulate and generate 2D cellular automata in a console by using formatted files.
 
 Sample files are in the `boards` & `rules` folders.
 
@@ -37,6 +37,11 @@ Generate a random 20-wide 40-high board with the seed `12345`, and output the bo
 ```
 ./blifs -g 20:40:12345 -o random.out
 ```
+
+## To-do
+* RLE file compatibility
+* ncurses port
+* Adding cells from a board file to a larger board
 
 ## Board file format
 
