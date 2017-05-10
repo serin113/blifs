@@ -1,9 +1,23 @@
 /*
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
 TODO: support RLE files
 */
 
 // include POSIX 2004 standards
-// http://stackoverflow.com/questions/5378778/what-does-d-xopen-source-do-mean
 #define _XOPEN_SOURCE 600
 
 #include <stdio.h>
@@ -150,9 +164,7 @@ int main(int argc, char **argv) {
             "\t\t\t\t(if 0 is passed, then the rules file isn't required)\n"
             "\t-d double\t\tDelay between displaying each simulation step\n"
             "\t\t\t\t(0 by default)\n"
-            "\t-g w:h:s\t\tGenerate a random board of size <w>x<h> with seed "
-            "<s>\n\n"
-            "\t\t\t\t(works both with simulation(default) and generation(-g))\n"
+            "\t-g w:h:s\t\tGenerate a random board of size <w>x<h> with seed <s>\n\n"
             "\t-h b\t\t\tShow info on board files\n"
             "\t-h r\t\t\tShow info on rules files\n"
             "\t-h\t\t\tShow these help options\n\n");
