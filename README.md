@@ -4,11 +4,11 @@ Simulate and generate 2D cellular automata in a console by using formatted files
 Sample files are in the `boards` & `rules` folders.
 
 ## Compiling
-Run `./build.sh` on a Linux system, or in an Ubuntu Subsystem for Windows 10 (developer mode should be enabled first).
+Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (developer mode should be enabled first).
 
 ## Command line options
 
-### Required:
+### Required (with conditions):
 * **`-b board-file`**: Load a board file (required, unless `-g` is passed which ignores it)
 * **`-r rules-file`**: Load a rules file (required, unless `-i 0` is passed)
 * **`-o file`**:       Output final result as a board file (required when `-g` is passed, optional otherwise)
@@ -20,8 +20,9 @@ Run `./build.sh` on a Linux system, or in an Ubuntu Subsystem for Windows 10 (de
 * **`-s`**: Don't display any output
 #### Other options:
 * **`-n integer`**: Number of times to run simulations (1 by default) (if 0 is passed, then the rules file isn't required)
-* **`-d double`**: Delay in seconds between displaying each simulation step (0 by default) *(you probably want to use this with `-v` if you plan on actually viewing the simulation as it happens)*
-* **`-g w:h:s`**: Generate a random board of size `w*h` with seed `s`
+* **`-d double`**: Delay in seconds between displaying each generation (0 by default) *(you probably want to use this with `-v` if you plan on actually viewing the simulation as it happens)*
+* **`-g w:h:d`**: Generate a random board of size `w*h` with seed `s` (`w` & `h` are required, `d` is optional and is `2` by default)
+* **`-i`**: Interactive mode, press any key to go to the next generation *(you probably want to use `-v` as well for this)*
 #### Help options:
 * **`-h b`**: Show info on board files
 * **`-h r`**: Show info on rules files

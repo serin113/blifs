@@ -13,10 +13,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-TODO: support RLE files
-*/
-
 // include POSIX 2004 standards
 #define _XOPEN_SOURCE 600
 
@@ -24,10 +20,10 @@ TODO: support RLE files
 #include <stdlib.h>
 #include <unistd.h>
 //#include <getopt.h> // getopt
-#include <ctype.h>    // isprint
-#include <string.h>   // strtok
-#include <time.h>     // nanosleep
-#include <math.h>     // floor
+#include <ctype.h>  // isprint
+#include <math.h>   // floor
+#include <string.h> // strtok
+#include <time.h>   // nanosleep, time
 
 #define FIELD_SIZE 9
 #define FIELD_CENTER 4
@@ -75,10 +71,14 @@ int main(int argc, char **argv) {
   int isGenRand = 0;
   char genRandDim[50] = {0};
   int disp = 1; // 0:none, 1:some, 2:all
+  int isInteractive = 0;
 
   /* OPTIONS PARSING */
-  while ((opt = getopt(argc, argv, "b:r:o:n:d:h:g:vsc")) != -1) {
+  while ((opt = getopt(argc, argv, "b:r:o:n:d:h:g:vsci")) != -1) {
     switch (opt) {
+    case 'i':
+      isInteractive = 1;
+      break;
     case 'g':
       isGenRand = 1;
       memcpy(genRandDim, optarg, strlen(optarg));
@@ -146,14 +146,16 @@ int main(int argc, char **argv) {
     case '?':
       if (optopt == 'h') {
         printf(
-            "blifs -  \"bareLifeSimulator\": simulates and generates 2D cellular automata in a console\n\n"
+            "blifs -  \"bareLifeSimulator\": simulates and generates 2D "
+            "cellular automata in a console\n\n"
             "Usage: blifs <options>\n\n"
             "(Required)\n"
             "\t-b board-file\t\tLoad a board file\n"
+            "\t\t\t\t(required unless '-g' is passed)\n"
             "\t-r rules-file\t\tLoad a rules file\n"
             "\t\t\t\t(required unless '-i 0' is passed)\n"
             "\t-o file\t\t\tOutput final result as a board file\n"
-            "\t\t\t\t(required when '-g' is passed)\n\n"
+            "\t\t\t\t(required when '-g' is passed, optional otherwise)\n\n"
             "(Optional)\n"
             "\t-c\t\t\tDisplay only initial & final iteration, or info for "
             "'-g' (default)\n"
@@ -163,8 +165,12 @@ int main(int argc, char **argv) {
             "default)\n"
             "\t\t\t\t(if 0 is passed, then the rules file isn't required)\n"
             "\t-d double\t\tDelay between displaying each simulation step\n"
+            "\t-i\t\t\tInteractive mode, press any key to go to the next "
+            "generation\n"
             "\t\t\t\t(0 by default)\n"
-            "\t-g w:h:s\t\tGenerate a random board of size <w>x<h> with seed <s>\n\n"
+            "\t-g w:h:d\t\tGenerate a random board of size <w>x<h> with "
+            "a 1/<d> chance of a live cell\n"
+            "\t\t\t\t(w & h are required, d is optional and 2 by default)\n\n"
             "\t-h b\t\t\tShow info on board files\n"
             "\t-h r\t\t\tShow info on rules files\n"
             "\t-h\t\t\tShow these help options\n\n");
@@ -198,13 +204,16 @@ int main(int argc, char **argv) {
     if (b == NULL)
       return 1;
 
+    long long int tot_size = b->w * b->h;
+
     Rules r = NULL;
     if (iterations != 0)
       r = file_to_rules(rules_file);
 
     if (disp > 0) {
-      printf("[READ (%zu*%zu) BOARD, ALIVE: %lld]\n", b->w, b->h, b->live);
       board_print(b);
+      printf("[READ (%zu*%zu) BOARD, ALIVE: %lld/%lld]\n", b->w, b->h, b->live,
+             tot_size);
     }
 
     long long int nth = 0;
@@ -214,24 +223,25 @@ int main(int argc, char **argv) {
     req->tv_nsec = (long)((double)(delay - floor(delay)) * (double)1000000000);
 
     while (nth != iterations) {
+      if (isInteractive == 1)
+        getchar();
       int goprint = ((nth == iterations - 1 && disp == 1) || disp == 2);
-      if (goprint)
-        printf("[GEN %lld/%lld, ALIVE: %lld (%zu*%zu)]\n", nth + 1, iterations,
-               b->live, b->w, b->h);
       if (board_update(b, r)) {
         if (goprint)
           board_print(b);
         nth++;
       } else {
         if (goprint) {
-          printf("[BOARD IS STATIC]\n");
           board_print(b);
+          printf("[BOARD IS STATIC]\n");
         }
         break;
       }
-      if (nth != iterations && delay != 0) {
+      if (goprint)
+        printf("[GEN %lld/%lld, ALIVE: %lld/%lld (%zu*%zu)]\n", nth, iterations,
+               b->live, b->w, b->h, tot_size);
+      if (nth != iterations && delay != 0)
         nanosleep(req, NULL);
-      }
     }
 
     free(req);
@@ -260,22 +270,23 @@ int main(int argc, char **argv) {
       fprintf(stderr, "Invalid arguments for '-g'\n");
     size_t width = (size_t)strtol(w_c, NULL, 10);
     size_t height = (size_t)strtol(h_c, NULL, 10);
-    unsigned int seed = 1;
+    unsigned int div = 1;
 
-    if (s_c != NULL) {
-      seed = (unsigned int)strtol(s_c, NULL, 10);
-    }
-    Board new_b = board_random(width, height, seed);
+    if (s_c != NULL)
+      div = (unsigned int)strtol(s_c, NULL, 10);
+
+    Board new_b = board_random(width, height, div);
 
     board_to_file(new_b, board_output_file);
     if (disp > 0) {
       double fill =
           ((double)(new_b->live) / ((double)(new_b->w) * (double)(new_b->h))) *
           100.0;
-      printf("[FILLED: %.2lf%%, SEED: %d (%zu*%zu)]\n", fill, seed, new_b->w,
-             new_b->h);
+      double div_perc = ((double)1 / (double)div) * 100;
       if (disp == 2)
         board_print(new_b);
+      printf("[ACTUAL LIVE: %.2lf%%, LIFE PROBABILITY: %.2lf (%zu*%zu)]\n",
+             fill, div_perc, new_b->w, new_b->h);
     }
     board_delete(&new_b);
     fclose(board_output_file);
@@ -474,15 +485,18 @@ void board_to_file(Board b, FILE *fo) {
     }
   }
 }
-Board board_random(size_t w, size_t h, unsigned int seed) {
+Board board_random(size_t w, size_t h, unsigned int div) {
   Board b = board_create(w, h);
-  srandom(seed);
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  srandom((time_t)ts.tv_nsec);
   for (int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
-      int val = (int)(random() % 2);
-      if (val == 1)
+      int val = div > 2 ? (random() % div) : (random() % 2);
+      if (val == 1) {
         b->live += 1;
-      (b->cells)[i][j] = val;
+        (b->cells)[i][j] = val;
+      }
     }
   }
   return b;
