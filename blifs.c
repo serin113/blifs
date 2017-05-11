@@ -239,7 +239,7 @@ int main(int argc, char **argv) {
       }
       if (goprint)
         printf("[GEN %lld/%lld, ALIVE: %lld/%lld (%zu*%zu)]\n", nth, iterations,
-               b->live, b->w, b->h, tot_size);
+               b->live, tot_size, b->w, b->h);
       if (nth != iterations && delay != 0)
         nanosleep(req, NULL);
     }
