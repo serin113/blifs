@@ -1,6 +1,8 @@
 # blifs
 Simulate and generate 2D (discrete, neighbor-based) cellular automata in a console by using formatted files.
 
+Currently, the board is a torus, *i.e.* an edge on the board loops to the opposite edge.
+
 Sample files are in the `boards` & `rules` folders.
 
 ***
@@ -14,6 +16,7 @@ Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (
 * Support for cell states other than alive`(1)` and dead`(0)`
 * ncurses port
 * Adding cells from a board file to a larger board
+* Support for non-torus boards
 
 ***
 
