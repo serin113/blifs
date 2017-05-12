@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
   int isInteractive = 0;
 
   /* OPTIONS PARSING */
-  while ((opt = getopt(argc, argv, "b:r:o:n:d:h:g:vsci")) != -1) {
+  while ((opt = getopt(argc, argv, ":b:r:o:n:d:h:g:vsci")) != -1) {
     switch (opt) {
     case 'i':
       isInteractive = 1;
@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
     case 'd':
       delay = strtod(optarg, NULL);
       break;
-    case '?':
+    case ':':
       if (optopt == 'h') {
         printf(
             "blifs -  \"bareLifeSimulator\": simulates and generates 2D "
@@ -166,7 +166,9 @@ int main(int argc, char **argv) {
             "'-g' (default)\n"
             "\t-v\t\t\tDisplay verbose output\n"
             "\t-s\t\t\tDon't display any output\n"
-            "\t\t\t\t(overridden by '-g' if '-o' is not passed)\n\n"
+            "\t\t\t\t(overridden by '-g' if '-o' is not passed)\n"
+            "\t-i\t\t\tInteractive mode, press any key to go to the next "
+            "generation\n\n"
             "\t-d double\t\tDelay in seconds between displaying each "
             "generation\n"
             "\t\t\t\t(0 by default)\n"
@@ -176,9 +178,7 @@ int main(int argc, char **argv) {
             "default)\n"
             "\t\t\t\t(if '-o' is passed, output to file; else, output to "
             "stdout)\n"
-            "\t\t\t\t(overrides '-s' if '-o' is not passed)\n"
-            "\t-i\t\t\tInteractive mode, press any key to go to the next "
-            "generation\n\n"
+            "\t\t\t\t(overrides '-s' if '-o' is not passed)\n\n"
             "\t-h b\t\t\tShow info on board files\n"
             "\t-h r\t\t\tShow info on rules files\n"
             "\t-h\t\t\tShow these help options\n\n");
@@ -198,11 +198,12 @@ int main(int argc, char **argv) {
 
   /* PROGRAM PROPER */
   if (isGenRand == 0) {
-
+    
     if (bif_hasval == 0) {
       fprintf(stderr, "Input board file required\n");
       return 1;
     }
+    
     if (rf_hasval == 0 && iterations != 0) {
       fprintf(stderr, "Rule file required\n");
       return 1;
@@ -236,8 +237,10 @@ int main(int argc, char **argv) {
     }
 
     while (nth != iterations) {
-      if (isInteractive == 1)
+      if (isInteractive == 1) {
+        printf("(ENTER)");
         getchar();
+      }
       int goprint = ((nth == iterations - 1 && disp == 1) || disp == 2);
       if (board_update(b, r)) {
         if (goprint)

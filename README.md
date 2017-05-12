@@ -1,9 +1,9 @@
 # blifs
 Simulate and generate 2D (discrete, neighbor-based) cellular automata in a console by using formatted files.
 
-Currently, the board is a torus, *i.e.* an edge on the board loops to the opposite edge.
+A cell's state is determined by the number of live neighbors around it and the corresponding rules, which is given by a rules file.
 
-Sample files are in the `boards` & `rules` folders.
+At the moment, the board space is a torus, *i.e.* any edge on the board loops to the opposite edge.
 
 ***
 
@@ -11,12 +11,17 @@ Sample files are in the `boards` & `rules` folders.
 Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (developer mode should be enabled first).
 
 ## To-do
-* Support for other rule formats
-* RLE file compatibility
-* Support for cell states other than alive`(1)` and dead`(0)`
-* ncurses port
-* Adding cells from a board file to a larger board
-* Support for non-torus boards
+* **High Priority:**
+  * Piping the board generator to the board simulator
+  * Optimize the board updating (current impl. creates separate "*buffer board*" containing number of neighbors per cell)
+* **Medium Priority:**
+  * Support for cell states other than alive(1) and dead(0)
+  * Adding cells from a board file to a larger board
+  * Support for non-torus boards (*e.g.* board bordered by dead cells)
+* **Low Priority:**
+  * Support for other rule formats
+  * RLE file compatibility
+  * ncurses port
 
 ***
 
@@ -28,15 +33,10 @@ Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (
 * **`-r rules-file`**: Load a rules file
   * required, unless `-n 0` is passed
 * **`-o file`**: Output final result as a board file
+  * if `-g` is passed, the randomized board is the output; otherwise, the final iteration of the board is the output
 * **`-n integer`**: Number of generations to iterate through
   * `1` by default
-  * If `0` is passed, then the rules file isn't required (for only parsing a board file)
-
-### Info display:
-* **`-c`**: Display only initial & final iteration, or info for `-g` (default)
-* **`-v`**: Display verbose output
-* **`-s`**: Don't display any output
-  * If `-g` is passed without `-o`, it'll still print to the standard output (for piping the output to another program w/o the extra board info)
+  * if `0` is passed, then the rules file isn't required (for only parsing a board file)
   
 ### Other:
 * **`-d double`**: Delay in seconds between displaying each generation
@@ -44,10 +44,17 @@ Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (
   * *You probably want to use this with* `-v` *if you plan on viewing the simulation as it happens*
 * **`-g w:h:d`**: Generate a random board of size `w*h` with a 1/`d` chance of a live cell
   * `w` & `h` are required, `d` is optional and 2 by default
-  * If `-o` is passed, it'll output the board to that file; otherwise, it'll print it in the standard output
-  * Overrides `-s` when '-o' isn't passed, but removes the extra board info
-* **`-i`**: Interactive mode, press any key to go to the next generation
-  * *You probably want to use `-v` as well for this*
+  * overrides 
+  * if `-o` is passed, it'll output the board to that file; otherwise, it'll print it in the standard output
+  * overrides `-s` when `-o` isn't passed, but removes the extra board info
+  
+### Info display:
+  * **`-c`**: Display only initial & final iteration, or info for `-g` (default)
+  * **`-v`**: Display verbose output
+  * **`-s`**: Don't display any output
+    * if `-g` is passed without `-o`, it'll still print to the standard output (for piping the output to another program w/o the extra board info)
+  * **`-i`**: Interactive mode, press any key to go to the next generation
+    * *You probably want to use* `-v` *as well for this*
   
 ### Help options:
 * **`-h b`**: Show info on board files
