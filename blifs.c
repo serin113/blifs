@@ -212,8 +212,9 @@ int main(int argc, char **argv) {
 
     if (disp > 0) {
       board_print(b);
-      printf("[READ (%zu*%zu) BOARD, ALIVE: %lld/%lld]\n", b->w, b->h, b->live,
-             tot_size);
+      double perc = ((double)(b->live)/(double)(tot_size)) * 100;
+      printf("[READ (%zu*%zu) BOARD, ALIVE: %lld/%lld (%.2lf%%)]\n", b->w, b->h, b->live,
+             tot_size, perc);
     }
 
     long long int nth = 0;
@@ -240,9 +241,11 @@ int main(int argc, char **argv) {
         }
         break;
       }
-      if (goprint)
-        printf("[GEN %lld/%lld, ALIVE: %lld/%lld (%zu*%zu)]\n", nth, iterations,
-               b->live, tot_size, b->w, b->h);
+      if (goprint) {
+            double perc = ((double)(b->live)/(double)(tot_size)) * 100;
+      		printf("[BOARD (%zu*%zu), GEN %lld/%lld, ALIVE: %lld/%lld (%.2lf%%)]\n", b->w, b->h, nth, iterations,
+               b->live, tot_size, perc);
+      }
       if (nth != iterations && delay != 0 && req != NULL)
         nanosleep(req, NULL);
     }
@@ -282,14 +285,15 @@ int main(int argc, char **argv) {
 
     board_to_file(new_b, board_output_file);
     if (disp > 0) {
+      long long int board_tot = (new_b->w) * (new_b->h);
       double fill =
-          ((double)(new_b->live) / ((double)(new_b->w) * (double)(new_b->h))) *
+          ((double)(new_b->live) / board_tot) *
           100.0;
       double div_perc = ((double)1 / (double)div) * 100;
       if (disp == 2)
         board_print(new_b);
-      printf("[ACTUAL LIVE: %.2lf%%, LIFE PROBABILITY: %.2lf (%zu*%zu)]\n",
-             fill, div_perc, new_b->w, new_b->h);
+      printf("[BOARD: (%zu*%zu), ALIVE: %lld/%lld (%.2lf%%), PROBABILITY: %.2lf]\n", new_b->w, new_b->h,
+             new_b->live, board_tot, fill, div_perc);
     }
     board_delete(&new_b);
     fclose(board_output_file);
