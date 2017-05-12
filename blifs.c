@@ -25,6 +25,8 @@
 #include <string.h> // strtok
 #include <time.h>   // nanosleep, time
 
+typedef unsigned int u_int;
+
 #define FIELD_SIZE 9
 #define FIELD_CENTER 4
 #define LINE_BUF 50
@@ -52,7 +54,7 @@ Board board_create(size_t, size_t);
 void board_delete(Board *);
 void board_print(Board);
 int board_update(Board, Rules);
-Board board_random(size_t, size_t, unsigned int);
+Board board_random(size_t, size_t, u_int);
 Board file_to_board(FILE *);
 void board_to_file(Board, FILE *);
 Rules rules_create(int *, int *);
@@ -146,7 +148,8 @@ int main(int argc, char **argv) {
     case '?':
       if (optopt == 'h') {
         printf(
-            "blifs -  \"bareLifeSimulator\": simulates and generates 2D (discrete, neighbor-based) "
+            "blifs -  \"bareLifeSimulator\": simulates and generates 2D "
+            "(discrete, neighbor-based) "
             "cellular automata in a console\n\n"
             "Usage: blifs <options>\n\n"
             "(Required)\n"
@@ -155,22 +158,27 @@ int main(int argc, char **argv) {
             "\t-r rules-file\t\tLoad a rules file\n"
             "\t\t\t\t(required unless '-n 0' is passed)\n"
             "\t-o file\t\t\tOutput final result as a board file\n"
-            "\t\t\t\t(required when '-g' is passed, optional otherwise)\n\n"
+            "\t-n integer\t\tNumber of generations to iterate through"
+            "\t\t\t\t(1 by default)\n"
+            "\t\t\t\t(if 0 is passed, then the rules file isn't required)\n\n"
             "(Optional)\n"
             "\t-c\t\t\tDisplay only initial & final iteration, or info for "
             "'-g' (default)\n"
             "\t-v\t\t\tDisplay verbose output\n"
-            "\t-s\t\t\tDon't display any output\n\n"
-            "\t-n integer\t\tNumber of times to run simulations (1 by "
-            "default)\n"
-            "\t\t\t\t(if 0 is passed, then the rules file isn't required)\n"
-            "\t-d double\t\tDelay between displaying each simulation step\n"
-            "\t-i\t\t\tInteractive mode, press any key to go to the next "
+            "\t-s\t\t\tDon't display any output\n"
+            "\t\t\t\t(overridden by '-g' if '-o' is not passed)\n\n"
+            "\t-d double\t\tDelay in seconds between displaying each "
             "generation\n"
             "\t\t\t\t(0 by default)\n"
             "\t-g w:h:d\t\tGenerate a random board of size <w>x<h> with "
             "a 1/<d> chance of a live cell\n"
-            "\t\t\t\t(w & h are required, d is optional and 2 by default)\n\n"
+            "\t\t\t\t(<w> & <h> are required, <d> is optional and 2 by "
+            "default)\n"
+            "\t\t\t\t(if '-o' is passed, output to file; else, output to "
+            "stdout)\n"
+            "\t\t\t\t(overrides '-s' if '-o' is not passed)\n"
+            "\t-i\t\t\tInteractive mode, press any key to go to the next "
+            "generation\n\n"
             "\t-h b\t\t\tShow info on board files\n"
             "\t-h r\t\t\tShow info on rules files\n"
             "\t-h\t\t\tShow these help options\n\n");
@@ -212,19 +220,20 @@ int main(int argc, char **argv) {
 
     if (disp > 0) {
       board_print(b);
-      double perc = ((double)(b->live)/(double)(tot_size)) * 100;
-      printf("[READ (%zu*%zu) BOARD, ALIVE: %lld/%lld (%.2lf%%)]\n", b->w, b->h, b->live,
-             tot_size, perc);
+      double perc = ((double)(b->live) / (double)(tot_size)) * 100;
+      printf("[READ (%zu*%zu) BOARD, ALIVE: %lld/%lld (%.2lf%%)]\n", b->w, b->h,
+             b->live, tot_size, perc);
     }
 
     long long int nth = 0;
 
-	struct timespec *req = NULL;
-	if (delay != 0) {
- 	   req = malloc(sizeof(struct timespec));
-   	   req->tv_sec = floor(delay);
-       req->tv_nsec = (long)((double)(delay - floor(delay)) * (double)1000000000);
-	}
+    struct timespec *req = NULL;
+    if (delay != 0) {
+      req = malloc(sizeof(struct timespec));
+      req->tv_sec = floor(delay);
+      req->tv_nsec =
+          (long)((double)(delay - floor(delay)) * (double)1000000000);
+    }
 
     while (nth != iterations) {
       if (isInteractive == 1)
@@ -242,9 +251,9 @@ int main(int argc, char **argv) {
         break;
       }
       if (goprint) {
-            double perc = ((double)(b->live)/(double)(tot_size)) * 100;
-      		printf("[BOARD (%zu*%zu), GEN %lld/%lld, ALIVE: %lld/%lld (%.2lf%%)]\n", b->w, b->h, nth, iterations,
-               b->live, tot_size, perc);
+        double perc = ((double)(b->live) / (double)(tot_size)) * 100;
+        printf("[BOARD (%zu*%zu), GEN %lld/%lld, ALIVE: %lld/%lld (%.2lf%%)]\n",
+               b->w, b->h, nth, iterations, b->live, tot_size, perc);
       }
       if (nth != iterations && delay != 0 && req != NULL)
         nanosleep(req, NULL);
@@ -265,9 +274,10 @@ int main(int argc, char **argv) {
     }
   } else {
     if (bof_hasval == 0) {
-      fprintf(stderr,
-              "Output board file required for generating a random board\n");
-      return 1;
+      // fprintf(stderr,"Output board file required for generating a random
+      // board\n");
+      board_output_file = stdout;
+      // return 1;
     }
     char *w_c = strtok(genRandDim, ":");
     char *h_c = strtok(NULL, ":");
@@ -276,24 +286,23 @@ int main(int argc, char **argv) {
       fprintf(stderr, "Invalid arguments for '-g'\n");
     size_t width = (size_t)strtol(w_c, NULL, 10);
     size_t height = (size_t)strtol(h_c, NULL, 10);
-    unsigned int div = 1;
+    u_int div = 1;
 
     if (s_c != NULL)
-      div = (unsigned int)strtol(s_c, NULL, 10);
+      div = (u_int)strtol(s_c, NULL, 10);
 
     Board new_b = board_random(width, height, div);
 
     board_to_file(new_b, board_output_file);
     if (disp > 0) {
       long long int board_tot = (new_b->w) * (new_b->h);
-      double fill =
-          ((double)(new_b->live) / board_tot) *
-          100.0;
+      double fill = ((double)(new_b->live) / board_tot) * 100.0;
       double div_perc = ((double)1 / (double)div) * 100;
       if (disp == 2)
         board_print(new_b);
-      printf("[BOARD: (%zu*%zu), ALIVE: %lld/%lld (%.2lf%%), PROBABILITY: %.2lf]\n", new_b->w, new_b->h,
-             new_b->live, board_tot, fill, div_perc);
+      printf("[BOARD: (%zu*%zu), ALIVE: %lld/%lld (%.2lf%%), PROBABILITY: "
+             "%.2lf%%]\n",
+             new_b->w, new_b->h, new_b->live, board_tot, fill, div_perc);
     }
     board_delete(&new_b);
     fclose(board_output_file);
@@ -305,9 +314,9 @@ int main(int argc, char **argv) {
 Board board_create(size_t w, size_t h) {
   Board b = malloc(sizeof(struct _board_));
   b->cells = malloc(sizeof(int *) * w);
-  for (int i = 0; i < w; i++) {              // per column(x)
+  for (u_int i = 0; i < w; i++) {            // per column(x)
     (b->cells)[i] = malloc(sizeof(int) * h); // per row(y) in column i(x)
-    for (int j = 0; j < h; j++) {
+    for (u_int j = 0; j < h; j++) {
       (b->cells)[i][j] = 0;
     }
   }
@@ -327,7 +336,7 @@ Rules rules_create(int *s, int *c) {
   return ret;
 }
 void board_delete(Board *b) {
-  for (int i = 0; i < (*b)->w; i++) {
+  for (u_int i = 0; i < (*b)->w; i++) {
     free(((*b)->cells)[i]);
   }
   free((*b)->cells);
@@ -362,7 +371,7 @@ int rules_check(int *field, Rules r) {
 }
 Update update_generate(Board b, Rules r) {
   Update u = board_create(b->w, b->h);
-  for (int i = 0; i < b->w; i++) {
+  for (u_int i = 0; i < b->w; i++) {
     int field[FIELD_SIZE]; // per column(x)
 
     int x_l = i - 1, x_r = i + 1;
@@ -373,7 +382,7 @@ Update update_generate(Board b, Rules r) {
     else if (i == b->w - 1)
       x_r = 0;
 
-    for (int j = 0; j < b->h; j++) { // per row(y) in column i(x)
+    for (u_int j = 0; j < b->h; j++) { // per row(y) in column i(x)
       int y_t = j - 1, y_b = j + 1;
 
       // for wrapping around the board vertically
@@ -405,8 +414,8 @@ Update update_generate(Board b, Rules r) {
   return u;
 }
 void board_print(Board b) {
-  for (int i = 0; i < b->h; i++) {
-    for (int j = 0; j < b->w; j++) {
+  for (u_int i = 0; i < b->h; i++) {
+    for (u_int j = 0; j < b->w; j++) {
       if ((b->cells)[j][i] == 1)
         putchar(FILL_CHAR);
       else if ((b->cells)[j][i] == 0)
@@ -422,8 +431,8 @@ int board_update(Board b, Rules r) {
   Update u = update_generate(b, r);
   b->live += u->live;
   int isEmpty = 1;
-  for (int i = 0; i < b->w; i++) {
-    for (int j = 0; j < b->h; j++) {
+  for (u_int i = 0; i < b->w; i++) {
+    for (u_int j = 0; j < b->h; j++) {
       int upd = (u->cells)[i][j];
       if (upd == 0)
         continue;
@@ -483,8 +492,8 @@ Rules file_to_rules(FILE *fi) {
 void board_to_file(Board b, FILE *fo) {
   fprintf(fo, "%zu %zu\n", b->w, b->h);
   fflush(fo);
-  for (int i = 0; i < b->w; i++) {
-    for (int j = 0; j < b->h; j++) {
+  for (u_int i = 0; i < b->w; i++) {
+    for (u_int j = 0; j < b->h; j++) {
       if ((b->cells)[i][j] == 1) {
         fprintf(fo, "%d %d\n", i, j);
         fflush(fo);
@@ -492,13 +501,13 @@ void board_to_file(Board b, FILE *fo) {
     }
   }
 }
-Board board_random(size_t w, size_t h, unsigned int div) {
+Board board_random(size_t w, size_t h, u_int div) {
   Board b = board_create(w, h);
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   srandom((time_t)ts.tv_nsec);
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
+  for (u_int i = 0; i < w; i++) {
+    for (u_int j = 0; j < h; j++) {
       int val = div > 2 ? (random() % div) : (random() % 2);
       if (val == 1) {
         b->live += 1;
