@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     case 'h':
       switch (optarg[0]) {
       case 'b':
-        printf("(Board file help)\n"
+        printf("\n(Board file help)\n"
                "A board file is a space-delimited plain text file with the "
                "format (without the underscores):\n"
                "________________________________\n"
@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
                "Each (<col> <row>) pair defines a live cell in the grid.\n\n");
         return 0;
       case 'r':
-        printf("(Rule file help)\n"
+        printf("\n(Rule file help)\n"
                "A rule file is a space-delimited plain text file with the "
                "format (without the underscores):\n"
                "___________________________________\n"
@@ -148,20 +148,19 @@ int main(int argc, char **argv) {
     case ':':
       if (optopt == 'h') {
         printf(
-            "blifs -  \"bareLifeSimulator\": simulates and generates 2D "
+            "\nblifs -  \"bareLifeSimulator\": simulates and generates 2D "
             "(discrete, neighbor-based) "
             "cellular automata in a console\n\n"
-            "Usage: blifs <options>\n\n"
-            "(Required)\n"
+            "Usage:\n\tblifs -b board_file <options>\n"
+			"\tblifs -g w:h:d <options>\n\n\n"
             "\t-b board-file\t\tLoad a board file\n"
             "\t\t\t\t(required unless '-g' is passed)\n"
             "\t-r rules-file\t\tLoad a rules file\n"
             "\t\t\t\t(required unless '-n 0' is passed)\n"
             "\t-o file\t\t\tOutput final result as a board file\n"
-            "\t-n integer\t\tNumber of generations to iterate through"
+            "\t-n integer\t\tNumber of generations to iterate through\n"
             "\t\t\t\t(1 by default)\n"
             "\t\t\t\t(if 0 is passed, then the rules file isn't required)\n\n"
-            "(Optional)\n"
             "\t-c\t\t\tDisplay only initial & final iteration, or info for "
             "'-g' (default)\n"
             "\t-v\t\t\tDisplay verbose output\n"
