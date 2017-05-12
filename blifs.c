@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
             "\t-b board-file\t\tLoad a board file\n"
             "\t\t\t\t(required unless '-g' is passed)\n"
             "\t-r rules-file\t\tLoad a rules file\n"
-            "\t\t\t\t(required unless '-i 0' is passed)\n"
+            "\t\t\t\t(required unless '-n 0' is passed)\n"
             "\t-o file\t\t\tOutput final result as a board file\n"
             "\t\t\t\t(required when '-g' is passed, optional otherwise)\n\n"
             "(Optional)\n"
@@ -218,9 +218,12 @@ int main(int argc, char **argv) {
 
     long long int nth = 0;
 
-    struct timespec *req = malloc(sizeof(struct timespec));
-    req->tv_sec = floor(delay);
-    req->tv_nsec = (long)((double)(delay - floor(delay)) * (double)1000000000);
+	struct timespec *req = NULL;
+	if (delay != 0) {
+ 	   req = malloc(sizeof(struct timespec));
+   	   req->tv_sec = floor(delay);
+       req->tv_nsec = (long)((double)(delay - floor(delay)) * (double)1000000000);
+	}
 
     while (nth != iterations) {
       if (isInteractive == 1)
@@ -240,7 +243,7 @@ int main(int argc, char **argv) {
       if (goprint)
         printf("[GEN %lld/%lld, ALIVE: %lld/%lld (%zu*%zu)]\n", nth, iterations,
                b->live, tot_size, b->w, b->h);
-      if (nth != iterations && delay != 0)
+      if (nth != iterations && delay != 0 && req != NULL)
         nanosleep(req, NULL);
     }
 

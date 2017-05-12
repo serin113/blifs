@@ -10,7 +10,7 @@ Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (
 
 ### Required (with conditions):
 * **`-b board-file`**: Load a board file (required, unless `-g` is passed which ignores it)
-* **`-r rules-file`**: Load a rules file (required, unless `-i 0` is passed)
+* **`-r rules-file`**: Load a rules file (required, unless `-n 0` is passed)
 * **`-o file`**:       Output final result as a board file (required when `-g` is passed, optional otherwise)
 
 ### Optional:
