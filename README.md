@@ -21,7 +21,7 @@ Run `./build.sh` on a Linux system, or in an *Ubuntu Subsystem for Windows 10* (
 #### Other options:
 * **`-n integer`**: Number of times to run simulations (1 by default) (if 0 is passed, then the rules file isn't required)
 * **`-d double`**: Delay in seconds between displaying each generation (0 by default) *(you probably want to use this with `-v` if you plan on actually viewing the simulation as it happens)*
-* **`-g w:h:d`**: Generate a random board of size `w*h` with seed `s` (`w` & `h` are required, `d` is optional and is `2` by default)
+* **`-g w:h:d`**: Generate a random board of size `w*h` with a 1/`d` chance of a live cell (`w` & `h` are required, `d` is optional and 2 by default)
 * **`-i`**: Interactive mode, press any key to go to the next generation *(you probably want to use `-v` as well for this)*
 #### Help options:
 * **`-h b`**: Show info on board files
@@ -34,13 +34,14 @@ Load the `boards/gol_glider` board, simulate it with the `rules/life` rules for 
 ./blifs -b boards/gol_glider -r rules/life -n 100 -v -d 1 -o board.out
 ```
 
-Generate a random 20-wide 40-high board with the seed `12345`, and output the board to `random.out`:
+Generate a random 20-wide 40-high board with a 1/3 (33%) chance of cell being alive, and output the board to `random.out`:
 ```
-./blifs -g 20:40:12345 -o random.out
+./blifs -g 20:40:3 -o random.out
 ```
 
 ## To-do
 * RLE file compatibility
+* Support for other rule formats
 * ncurses port
 * Adding cells from a board file to a larger board
 
