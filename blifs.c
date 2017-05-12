@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
     case '?':
       if (optopt == 'h') {
         printf(
-            "blifs -  \"bareLifeSimulator\": simulates and generates 2D "
+            "blifs -  \"bareLifeSimulator\": simulates and generates 2D (discrete, neighbor-based) "
             "cellular automata in a console\n\n"
             "Usage: blifs <options>\n\n"
             "(Required)\n"

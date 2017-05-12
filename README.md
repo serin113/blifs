@@ -1,5 +1,5 @@
 # blifs
-Simulate and generate 2D cellular automata in a console by using formatted files.
+Simulate and generate 2D (discrete, neighbor-based) cellular automata in a console by using formatted files.
 
 Sample files are in the `boards` & `rules` folders.
 
@@ -40,8 +40,9 @@ Generate a random 20-wide 40-high board with a 1/3 (33%) chance of cell being al
 ```
 
 ## To-do
-* RLE file compatibility
 * Support for other rule formats
+** RLE file compatibility
+* Support for cell states other than alive`(1)` and dead`(0)`
 * ncurses port
 * Adding cells from a board file to a larger board
 
